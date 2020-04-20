@@ -24,6 +24,8 @@ from utils import *
 import logging
 logger = None
 
+USE_OPTIMIZE = False
+
 tasks = {
     'win32': {
         'svg2png': {
@@ -40,8 +42,12 @@ tasks = {
             'bin': 'epstopdf.exe',
             'command': '{0} {1} {2}',
             'args': ['eps_file', 'pdf_file']
+        },
+        'svgo': {
+            'bin': 'svgo.exe',
+            'command': '{0} --pretty --quiet --config=svgo.yml {1}',
+            'args': ['svg_file']
         }
-
     },
 
     'others': {
@@ -59,8 +65,12 @@ tasks = {
             'bin': 'epstopdf',
             'command': '{0} {1} {2}',
             'args': ['eps_file', 'pdf_file']
+        },
+        'svgo': {
+            'bin': 'svgo',
+            'command': 'NODE_OPTIONS=--max_old_space_size=8192 {0} --pretty --quiet --config=svgo.yml {1}',
+            'args': ['svg_file']
         }
-
     }
 }
 
@@ -71,7 +81,7 @@ def safe_parse_path(d):
     try:
         p = parse_path(d)
     except:
-        logger.warning('Parse d string {} failed.'.format(d), exc_info=True)
+        logger.debug('Parse d string {}... failed.'.format(d[:100]))
     return p 
 
 def to_path(node):
@@ -392,6 +402,13 @@ def remove_background(input_svg_file, output_svg_file):
         doc.writexml(f)
     doc.unlink()
 
+    if USE_OPTIMIZE:
+        try:
+            run_task('svgo', svg_file=output_svg_file)
+        except:
+            logger.warning('Exception occurred when optimizing svg file {}.'.format(output_svg_file))
+            logger.debug('svgo fails when optimizing {}.'.format(output_svg_file), exc_info=True)
+
 
 def do_convert(tgt):
     f, tgt_dir = tgt['f'], tgt['tgt_dir']
@@ -417,7 +434,7 @@ def convert(files, tgt_dir, num_workers=1):
 
     if num_workers > 1:
         with Pool(num_workers) as p:
-            list(tqdm(p.imap(do_convert, [{'f': f, 'tgt_dir': tgt_dir} for f in files]), total=len(files)))
+            r = list(tqdm(p.imap(do_convert, [{'f': f, 'tgt_dir': tgt_dir} for f in files]), total=len(files)))
     else:
         for f in files:
             do_convert({'f': f, 'tgt_dir': tgt_dir})

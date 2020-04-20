@@ -204,7 +204,7 @@ def find_paths(doc,
         try:
             path_list.append(parse_path(d))
         except:
-            logger.warning('Parse d string {} fail!'.format(d), exc_info=True)
+            logger.debug('Parse d string {}... fail!'.format(d[:100]))
             continue
     # path_list = [parse_path(d) for d in d_strings]
     return pathnodes, path_list, d_strings
@@ -361,17 +361,20 @@ def save_segs(img, svg, t, zoom_ratio, contours, _id, output_dir):
             try:
                 cv2.imwrite(osp.join(output_dir, '{}-{}.png'.format(_id, cidx)), img[y:y+h, x:x+w])
             except:
-                logger.warning('Save png seg {}-{} failed.'.format(_id, cidx), exc_info=True)
+                logger.warning('Save png seg {}-{} failed.'.format(_id, cidx))
+                logger.debug('Save segment {}-{} failed.'.format(_id, cidx), exc_info=True)
             try:
                 write_svg(osp.join(output_dir, '{}-{}.svg'.format(_id, cidx)), defs, seg_path, svg_attributes)
             except:
-                logger.warning('Save svg seg {}-{} failed.'.format(_id, cidx), exc_info=True)
+                logger.warning('Save svg seg {}-{} failed.'.format(_id, cidx))
+                logger.debug('Save segment {}-{} failed.'.format(_id, cidx), exc_info=True)
 
             if USE_OPTIMIZE:
                 try:
-                    subprocess.call(['svgo', '--pretty', '--quiet', '--config=svgo.yml', output_dir])
+                    subprocess.call('NODE_OPTIONS=--max_old_space_size=8192 svgo --pretty --quiet --config=svgo.yml -f {}'.format(output_dir), shell=True)
                 except:
-                    logger.warning('Exception occurred when optimizing svg segs of {}.'.format(_id), exc_info=True)
+                    logger.warning('Exception occurred when optimizing svg segs of {}.'.format(_id))
+                    logger.debug('svgo fails when optimizing svg segs of {}.'.format(_id), exc_info=True)
 
 def mark_outliars(arr, lower_thresh, upper_thresh):
     try:
@@ -474,14 +477,16 @@ def do_seg(inp):
     try:
         save_segs(img, svg, t, zoom_ratio, contours, _id, save_dir)
     except:
-        logger.error('{} save morph segs failed.'.format(_id), exc_info=True)
+        logger.error('{} save morph segs failed. (probably due to image elements)'.format(_id))
+        logger.debug('{} segmentation failed.'.format(_id), exc_info=True)
         return 0
     
     if EXPORT_CONTOUR_RESULTS:
         try:
             save_segs(img, svg, t, zoom_ratio, orig_contours, _id, contour_save_dir)    
         except:
-            logger.error('{} save contour segs failed.'.format(_id), exc_info=True)
+            logger.error('{} save contour segs failed. (probably due to image elements)'.format(_id))
+            logger.debug('{} segmentation failed.'.format(_id), exc_info=True)
             return 0
 
     return conf_score
@@ -579,6 +584,6 @@ if __name__ == "__main__":
     main(sys.argv)
     # main(['', 'ICON-621-fails'])
     # debug(
-    #     glob.glob('test/*.eps'),
+    #     ['test/VCG41N483315133.eps'],
     #     'debug'
     # )

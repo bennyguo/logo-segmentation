@@ -57,6 +57,6 @@ Optional Arguments
 
 ## Examples
 ```
-python3 convert.py dir1 dir2 ---num_workers=8 --log test_convert.log
-python3 segmentation.py dir1 dir2 --num_workers=8 --log test_seg.log --conf test_conf.json
+python3 convert.py dir1 dir2 ---num-workers=8 --log test_convert.log
+python3 segmentation.py dir1 dir2 --num-workers=8 --log test_seg.log --conf test_conf.json
 ```
