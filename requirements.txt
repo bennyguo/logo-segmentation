@@ -1,0 +1,6 @@
+multiprocessing-logging
+numpy
+opencv-python
+svgpathtools
+svgwrite
+tqdm
