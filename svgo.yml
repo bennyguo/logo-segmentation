@@ -1,4 +1,6 @@
 plugins: 
   - convertPathData:
       noSpaceAfterFlags: false
+  - mergePaths:
+      noSpaceAfterFlags: false
       

@@ -553,6 +553,11 @@ def debug(files, debug_dir):
     global logger
     logger = get_logger('segmentation', None, echo=True, multiprocessing=False)
 
+    global USE_OPTIMIZE, EXPORT_CONTOUR_RESULTS, EXPORT_MASK
+    USE_OPTIMIZE = True
+    EXPORT_CONTOUR_RESULTS = True
+    EXPORT_MASK = True
+
     if osp.exists(debug_dir):
         shutil.rmtree(debug_dir)
     os.makedirs(debug_dir)
