@@ -60,3 +60,6 @@ Optional Arguments
 python3 convert.py dir1 dir2 ---num-workers=8 --log test_convert.log
 python3 segmentation.py dir1 dir2 --num-workers=8 --log test_seg.log --conf test_conf.json
 ```
+
+## Segmentation By Bounding Box API
+`segmentation_bbox.py` provides API `segmentation_bbox` for cropping a bounding box area from an SVG file. An example usage can be found in `__main__` function.
