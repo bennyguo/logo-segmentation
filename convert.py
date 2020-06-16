@@ -168,7 +168,7 @@ def find_paths(doc,
 def check_env():
     requirements = [t['bin'] for t in tasks[platform].values()]
     path_files = set(reduce(lambda a, b: a+b, [os.listdir(p) for p in os.environ['PATH'].split(
-        ';' if sys.platform == 'win32' else ':')]))
+        ';' if sys.platform == 'win32' else ':') if os.path.isdir(p)]))
     ok = True
     for r in requirements:
         if not r in path_files:
@@ -476,8 +476,8 @@ def evaluate(files, gt_dir, vis_dir):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    # main(sys.argv)
     # main(['', 'ICON-621-fails'])
-    # debug([
-    #     osp.join('test', f) for f in os.listdir('test')
-    # ], 'debug')
+    debug([
+        osp.join('test', f) for f in os.listdir('test')
+    ], 'debug')
