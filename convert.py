@@ -63,7 +63,8 @@ tasks = {
         },
         'eps2pdf': {
             'bin': 'epstopdf',
-            'command': '{0} {1} {2}',
+            # 'command': '{0} {1} {2}',
+            'command': 'cat {1} | {0} -f -o={2}',
             'args': ['eps_file', 'pdf_file']
         },
         'svgo': {
@@ -476,8 +477,8 @@ def evaluate(files, gt_dir, vis_dir):
 
 
 if __name__ == "__main__":
-    # main(sys.argv)
+    main(sys.argv)
     # main(['', 'ICON-621-fails'])
-    debug([
-        osp.join('test', f) for f in os.listdir('test')
-    ], 'debug')
+    # debug([
+    #     osp.join('test', f) for f in os.listdir('test')
+    # ], 'debug')
