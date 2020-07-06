@@ -180,7 +180,7 @@ def segmentation_bbox(png_file, svg_file, bbox, output_file, use_optimize=True):
         x0, x1, y0, y1 = x, y, x + w, y + h
         inter_area = inter_area_with_bbox(bbox, [xmin, ymin, xmax, ymax])
         path_bbox_area = (ymax-ymin) * (xmax-xmin)
-        valid = path_bbox_area > 0 and inter_area / path_bbox_area > BBOX_INTER_RATIO_THRESH
+        valid = path_bbox_area > 0 and inter_area / path_bbox_area > 0.5
         if valid:
             seg_path.append(path_nodes[pi] if defs == '' else find_parent(path_nodes[pi]))
 
