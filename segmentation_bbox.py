@@ -160,25 +160,24 @@ def segmentation_bbox(png_file, svg_file, bbox, output_file, use_optimize=True):
     svg = load_svg(svg_file)
     defs, g, svg_attributes = svg
     viewbox = re.findall(r'\d+\.?\d*', svg_attributes['viewBox'])
-    t = _width / (float(viewbox[2]) - float(viewbox[0]))
+    t = width / (float(viewbox[2]) - float(viewbox[0]))
     for attr in svg_attributes:
         if attr not in SVGAttribute:
             svg_attributes.pop(attr)
-
     g = parseString(g)
     path_nodes, paths, d_strings = find_paths(g)
     path_bboxes = [bbox_of(n, p) for n, p in zip(path_nodes, paths)]                
 
     bbox = tuple(bbox)
     x, y, w, h = bbox
+    x, y, w, h = x / zoom_ratio, y / zoom_ratio, w / zoom_ratio, h / zoom_ratio
 
     seg_path = []
     for pi, (node, path, path_bbox) in enumerate(zip(path_nodes, paths, path_bboxes)):
         _xmin, _xmax, _ymin, _ymax = path_bbox
         xmin, ymin, xmax, ymax = _xmin * t, _ymin * t, _xmax * t, _ymax * t
         xmin, xmax, ymin, ymax = int(min(xmin, xmax)), int(max(xmin, xmax)), int(min(ymin, ymax)), int(max(ymin, ymax))
-        x0, x1, y0, y1 = x, y, x + w, y + h
-        inter_area = inter_area_with_bbox(bbox, [xmin, ymin, xmax, ymax])
+        inter_area = inter_area_with_bbox((x, y, w, h), [xmin, ymin, xmax, ymax])
         path_bbox_area = (ymax-ymin) * (xmax-xmin)
         valid = path_bbox_area > 0 and inter_area / path_bbox_area > 0.5
         if valid:
@@ -195,8 +194,8 @@ def segmentation_bbox(png_file, svg_file, bbox, output_file, use_optimize=True):
 
 if __name__ == "__main__":
     segmentation_bbox(
-        'ICON-621-new/1/VCG41N1043465580.png',
-        'ICON-621-new/1/VCG41N1043465580.svg',
-        [630, 170, 170, 170],
+        'check_20200706/506285959.png',
+        'check_20200706/506285959.svg',
+        [0, 0, 300, 230],
         'debug/test_segmentation_bbox.svg'
     )

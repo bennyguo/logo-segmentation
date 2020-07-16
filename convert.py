@@ -24,14 +24,16 @@ from utils import *
 import logging
 logger = None
 
-USE_OPTIMIZE = False
+USE_OPTIMIZE = True
+EXPORT_DISPLAY = True
+EXPORT_PNG_WIDTH = 1000
 
 tasks = {
     'win32': {
         'svg2png': {
             'bin': 'inkscape.exe',
-            'command': '{0} -z {1} -e {2}',
-            'args': ['svg_file', 'png_file']
+            'command': '{0} -z {1} -e {2} -w {3}',
+            'args': ['svg_file', 'png_file', 'png_width']
         },
         'pdf2svg': {
             'bin': 'pdf2svg.exe',
@@ -53,8 +55,8 @@ tasks = {
     'others': {
         'svg2png': {
             'bin': 'inkscape',
-            'command': '{0} -z {1} -e {2}',
-            'args': ['svg_file', 'png_file']
+            'command': '{0} -z {1} -e {2} -w {3}',
+            'args': ['svg_file', 'png_file', 'png_width']
         },
         'pdf2svg': {
             'bin': 'pdf2svg',
@@ -389,7 +391,7 @@ def remove_background(input_svg_file, output_svg_file):
     tmp_svg_file, tmp_png_file = output_svg_file + '.tmp.svg', output_svg_file + 'tmp.svg'
     with open(tmp_svg_file, 'w') as f:
         doc.writexml(f)
-    run_task('svg2png', svg_file=tmp_svg_file, png_file=tmp_png_file)
+    run_task('svg2png', svg_file=tmp_svg_file, png_file=tmp_png_file, png_width=EXPORT_PNG_WIDTH)
     n_contour = number_of_morph_contours(tmp_png_file)
     os.remove(tmp_svg_file)
     os.remove(tmp_png_file)
@@ -411,6 +413,14 @@ def remove_background(input_svg_file, output_svg_file):
             logger.debug('svgo fails when optimizing {}.'.format(output_svg_file), exc_info=True)
 
 
+def post_process(input_svg_file, output_svg_file):
+    with open(input_svg_file) as f:
+        s = f.read()
+    s = s.replace('xlink:href', 'href')
+    with open(output_svg_file, 'w') as f:
+        f.write(s)
+
+
 def do_convert(tgt):
     f, tgt_dir = tgt['f'], tgt['tgt_dir']
     logger.debug('Converting {}'.format(f))
@@ -419,10 +429,14 @@ def do_convert(tgt):
     outputs = {
         t: osp.join(tgt_dir, name + '.' + t) for t in ['png', 'pdf', 'svg']
     }
+    outputs['png_display'] = osp.join(tgt_dir, name + '_display.png')
     run_task('eps2pdf', eps_file=f, pdf_file=outputs['pdf'])
     run_task('pdf2svg', pdf_file=outputs['pdf'], svg_file=outputs['svg'])
+    if EXPORT_DISPLAY:
+        run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png_display'], png_width=EXPORT_PNG_WIDTH)
     remove_background(outputs['svg'], outputs['svg'])
-    run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png'])
+    post_process(outputs['svg'], outputs['svg'])
+    run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png'], png_width=EXPORT_PNG_WIDTH)
     os.remove(outputs['pdf'])
 
 
@@ -463,12 +477,12 @@ def main(argv):
         convert(glob.glob(osp.join(src_dir, '*.eps')), tgt_dir, num_workers=num_workers)
 
 
-def debug(files, debug_dir):
+def debug(files, debug_dir, overwrite=False):
     global logger
     logger = get_logger('convert', None, echo=True, multiprocessing=False)
-    if osp.exists(debug_dir):
+    if osp.exists(debug_dir) and overwrite:
         shutil.rmtree(debug_dir)
-    os.makedirs(debug_dir)
+    os.makedirs(debug_dir, exist_ok=True)
     convert(files, debug_dir, num_workers=1)
 
 
