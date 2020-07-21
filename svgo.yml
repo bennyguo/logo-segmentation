@@ -3,4 +3,11 @@ plugins:
       noSpaceAfterFlags: false
   - mergePaths:
       noSpaceAfterFlags: false
-      
+  - removeUselessDefs: false
+  - removeViewBox: false
+  - moveElemsAttrsToGroup: false
+  - moveGroupAttrsToElems: false
+  - collapseGroups: false
+  - removeRasterImages: true
+  - removeDimensions: true
+  - cleanupIDs: false

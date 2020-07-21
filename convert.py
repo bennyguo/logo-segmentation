@@ -26,8 +26,9 @@ logger = None
 
 USE_OPTIMIZE = True
 EXPORT_DISPLAY = True
-EXPORT_PNG_WIDTH = 1000
-
+SEG_PNG_WIDTH = 1000
+DISPLAY_PNG_WIDTH = 1000
+ 
 tasks = {
     'win32': {
         'svg2png': {
@@ -391,7 +392,7 @@ def remove_background(input_svg_file, output_svg_file):
     tmp_svg_file, tmp_png_file = output_svg_file + '.tmp.svg', output_svg_file + 'tmp.svg'
     with open(tmp_svg_file, 'w') as f:
         doc.writexml(f)
-    run_task('svg2png', svg_file=tmp_svg_file, png_file=tmp_png_file, png_width=EXPORT_PNG_WIDTH)
+    run_task('svg2png', svg_file=tmp_svg_file, png_file=tmp_png_file, png_width=SEG_PNG_WIDTH)
     n_contour = number_of_morph_contours(tmp_png_file)
     os.remove(tmp_svg_file)
     os.remove(tmp_png_file)
@@ -433,10 +434,10 @@ def do_convert(tgt):
     run_task('eps2pdf', eps_file=f, pdf_file=outputs['pdf'])
     run_task('pdf2svg', pdf_file=outputs['pdf'], svg_file=outputs['svg'])
     if EXPORT_DISPLAY:
-        run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png_display'], png_width=EXPORT_PNG_WIDTH)
+        run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png_display'], png_width=DISPLAY_PNG_WIDTH)
     remove_background(outputs['svg'], outputs['svg'])
     post_process(outputs['svg'], outputs['svg'])
-    run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png'], png_width=EXPORT_PNG_WIDTH)
+    run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png'], png_width=SEG_PNG_WIDTH)
     os.remove(outputs['pdf'])
 
 
