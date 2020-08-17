@@ -79,6 +79,14 @@ tasks = {
 }
 
 platform = 'win32' if sys.platform == 'win32' else 'others'
+
+def optimize_svg(output_svg_file):
+    if USE_OPTIMIZE:
+        try:
+            run_task('svgo', svg_file=output_svg_file)
+        except:
+            logger.warning('Exception occurred when optimizing svg file {}.'.format(output_svg_file))
+            logger.debug('svgo fails when optimizing {}.'.format(output_svg_file), exc_info=True)
         
 def safe_parse_path(d):
     p = None
@@ -118,7 +126,7 @@ def find_paths(doc,
                convert_polylines_to_paths=True,
                convert_polygons_to_paths=True,
                convert_rectangles_to_paths=True):
-
+    # TODO: deal with recursive g
     # Use minidom to extract path strings from input SVG
     pathnodes = doc.getElementsByTagName('path')
     paths = [dom2dict(el) for el in pathnodes]
@@ -406,12 +414,7 @@ def remove_background(input_svg_file, output_svg_file):
         doc.writexml(f)
     doc.unlink()
 
-    if USE_OPTIMIZE:
-        try:
-            run_task('svgo', svg_file=output_svg_file)
-        except:
-            logger.warning('Exception occurred when optimizing svg file {}.'.format(output_svg_file))
-            logger.debug('svgo fails when optimizing {}.'.format(output_svg_file), exc_info=True)
+    optimize_svg(output_svg_file)
 
 
 def post_process(input_svg_file, output_svg_file):
@@ -433,6 +436,7 @@ def do_convert(tgt):
     outputs['png_display'] = osp.join(tgt_dir, name + '_display.png')
     run_task('eps2pdf', eps_file=f, pdf_file=outputs['pdf'])
     run_task('pdf2svg', pdf_file=outputs['pdf'], svg_file=outputs['svg'])
+    optimize_svg(outputs['svg'])
     if EXPORT_DISPLAY:
         run_task('svg2png', svg_file=outputs['svg'], png_file=outputs['png_display'], png_width=DISPLAY_PNG_WIDTH)
     remove_background(outputs['svg'], outputs['svg'])
@@ -495,5 +499,5 @@ if __name__ == "__main__":
     main(sys.argv)
     # main(['', 'ICON-621-fails'])
     # debug([
-    #     osp.join('test', f) for f in os.listdir('test')
+    #     osp.join('check_20200817', f) for f in os.listdir('check_20200817')
     # ], 'debug')
