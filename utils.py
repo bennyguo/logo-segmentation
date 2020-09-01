@@ -158,7 +158,7 @@ def write_svg(svgpath, defs, paths, svg_attributes):
         defsnode = parseString(defs).firstChild
         svg.replaceChild(defsnode, svg.firstChild)
     for i, path in enumerate(paths):
-        svg.appendChild(path)
+        svg.appendChild(path.cloneNode(deep=True))
 
     xmlstring = doc.toprettyxml()
     doc.unlink()

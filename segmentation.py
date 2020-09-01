@@ -348,11 +348,12 @@ def save_segs(img, svg, t, zoom_ratio, contours, _id, output_dir):
             x0, x1, y0, y1 = x, y, x + w, y + h
             inter_area = inter_area_with_contour(cnt, [xmin, ymin, xmax, ymax])
             path_bbox_area = (ymax-ymin) * (xmax-xmin)
-            valid = path_bbox_area > 0 and inter_area / path_bbox_area > BBOX_INTER_RATIO_THRESH
-            if valid:
-                all_inter_areas = list(map(lambda c: inter_area_with_contour(c, [xmin, ymin, xmax, ymax]), contours))
-                if inter_area < max(all_inter_areas):
-                    valid = False
+            # valid = path_bbox_area > 0 and inter_area / path_bbox_area > BBOX_INTER_RATIO_THRESH
+            # if valid:
+            #     all_inter_areas = list(map(lambda c: inter_area_with_contour(c, [xmin, ymin, xmax, ymax]), contours))
+            #     if inter_area < max(all_inter_areas):
+            #         valid = False
+            valid = inter_area > 0
             if valid:
                 seg_path.append(path_nodes[pi] if defs == '' else find_parent(path_nodes[pi]))
 
@@ -589,6 +590,6 @@ if __name__ == "__main__":
     main(sys.argv)
     # main(['', 'ICON-621-fails'])
     # debug(
-    #     ['test/VCG41N483315133.eps'],
+    #     ['check_20200818/VCG41N694733006.eps'],
     #     'debug'
     # )
